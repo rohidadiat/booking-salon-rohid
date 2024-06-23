@@ -27,11 +27,22 @@ public class Reservation {
         this.customer = customer;
         this.employee = employee;
         this.services = services;
-        this.reservationPrice = calculateReservationPrice();
+//        this.reservationPrice = calculateReservationPrice();
         this.workstage = workstage;
     };
 
-    private double calculateReservationPrice(){
-        return 0;
+    public void calculateReservationPrice(){
+    	double result=0;
+    	for(Service s: services) {
+    		result+=s.getPrice();
+    	}
+    	
+    	if(customer.getMember().getMembershipName().equals("Silver")) {
+    		this.reservationPrice= result-(result*0.05);
+    	} else if(customer.getMember().getMembershipName().equals("Gold")) {
+    		this.reservationPrice= result-(result*0.1);
+    	} else {
+    		this.reservationPrice= result;
+    	}
     }
 }

@@ -15,10 +15,14 @@ public class MenuService {
     private static List<Service> serviceList = ServiceRepository.getAllService();
     private static List<Reservation> reservationList = new ArrayList<>();
     private static Scanner input = new Scanner(System.in);
+    private static ValidationService validate = new ValidationService(); 
 
     public static void mainMenu() {
+    	int num=1;
         String[] mainMenuArr = {"Show Data", "Create Reservation", "Complete/cancel reservation", "Exit"};
-        String[] subMenuArr = {"Recent Reservation", "Show Customer", "Show Available Employee", "Back to main menu"};
+        String[] subMenuArr = {"Recent Reservation", "Show Customer", "Show Available Employee", "Reservation History & total Keuntungan", "Back to main menu"};
+        
+        PrintService print = new PrintService();
     
         int optionMainMenu;
         int optionSubMenu;
@@ -27,42 +31,76 @@ public class MenuService {
         boolean backToSubMenu = false;
         do {
             PrintService.printMenu("Main Menu", mainMenuArr);
-            optionMainMenu = Integer.valueOf(input.nextLine());
+            optionMainMenu = Integer.valueOf(validate.validateInput("^[0-9]+$","Pilih menu 0-3: ", 0, 3, true));
             switch (optionMainMenu) {
                 case 1:
                     do {
                         PrintService.printMenu("Show Data", subMenuArr);
-                        optionSubMenu = Integer.valueOf(input.nextLine());
+                        optionSubMenu = Integer.valueOf(validate.validateInput("^[0-9]+$","Pilih menu 0-4: ", 0, 4, true));
                         // Sub menu - menu 1
                         switch (optionSubMenu) {
                             case 1:
                                 // panggil fitur tampilkan recent reservation
+                            	print.showRecentReservation(reservationList);
                                 break;
                             case 2:
                                 // panggil fitur tampilkan semua customer
+                            	print.showAllCustomer(personList);
                                 break;
                             case 3:
                                 // panggil fitur tampilkan semua employee
+                            	print.showAllEmployee(personList);
                                 break;
                             case 4:
                                 // panggil fitur tampilkan history reservation + total keuntungan
+                            	print.showHistoryReservation(reservationList);
                                 break;
                             case 0:
-                                backToSubMenu = false;
+                                backToSubMenu = true;
+                                break;
                         }
                     } while (!backToSubMenu);
                     break;
                 case 2:
                     // panggil fitur menambahkan reservation
+                	ReservationService.createReservation(num);
+                	num++;
                     break;
                 case 3:
                     // panggil fitur mengubah workstage menjadi finish/cancel
+                	ReservationService.validateReservation(reservationList);
                     break;
                 case 0:
-                    backToMainMenu = false;
+                    backToMainMenu = true;
                     break;
             }
         } while (!backToMainMenu);
 		
 	}
+    
+    public static void addReservation(Reservation res) {
+    	res.calculateReservationPrice();
+    	reservationList.add(res);
+    }
+    
+    public static List<Reservation>  getallreservation(){
+    	return reservationList;
+    }
+    
+    public static void finishReservation(Reservation res) {
+    	for(Reservation R: reservationList) {
+    		if(R.getReservationId().equals(res.getReservationId())) {
+    			R.setWorkstage("Finish");
+    		}
+    	}
+    }
+    
+    public static void cancelReservation(Reservation res) {
+    	for(Reservation R: reservationList) {
+    		if(R.getReservationId().equals(res.getReservationId())) {
+    			R.setWorkstage("Canceled");
+    		}
+    	}
+    }
+    
 }
